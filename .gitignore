@@ -1,0 +1,5 @@
+__pycache__/
+*.pyc
+item_similarity.pkl
+online_retail.csv
+EDA_Charts/
