@@ -47,9 +47,7 @@ cluster_label_map = {
 }
 
 # ── Sidebar Navigation ────────────────────────────────────────
-#pages = ["🏠 Home", "👤 Customer Segmentation", "🎯 Product Recommendation"]
 pages = ["🏠 Home", "📊 RFM Analysis", "👤 Customer Segmentation", "🎯 Product Recommendation"]
-
 page = st.sidebar.radio("Navigate to", pages)
 
 # ══════════════════════════════════════════════════════════════
@@ -94,7 +92,7 @@ if page == "🏠 Home":
 # ══════════════════════════════════════════════════════════════
 elif page == "📊 RFM Analysis":
     st.title("📊 RFM Analysis")
-    st.markdown("Visual breakdown of customer Recency, Frequency and Monetary scores.")
+    st.markdown("Visual breakdown of customer Recency, Frequency and Monetary scores with key insights.")
     st.markdown("---")
 
     import matplotlib.pyplot as plt
@@ -102,66 +100,146 @@ elif page == "📊 RFM Analysis":
     # ── Chart 1: Recency Distribution ─────────────────────────
     st.subheader("1️⃣ Recency Distribution")
     st.markdown("How recently did customers make a purchase?")
-    fig1, ax1 = plt.subplots(figsize=(10, 4))
-    ax1.hist(rfm['Recency'], bins=50, color='steelblue', edgecolor='white')
-    ax1.set_xlabel("Recency (days)")
-    ax1.set_ylabel("Number of Customers")
-    ax1.set_title("Recency Distribution")
-    st.pyplot(fig1)
-    plt.close(fig1)
+
+    col_chart, col_insight = st.columns([3, 2])
+
+    with col_chart:
+        fig1, ax1 = plt.subplots(figsize=(8, 4))
+        ax1.hist(rfm['Recency'], bins=50, color='steelblue', edgecolor='white')
+        ax1.set_xlabel("Recency (days)")
+        ax1.set_ylabel("Number of Customers")
+        ax1.set_title("Recency Distribution")
+        st.pyplot(fig1)
+        plt.close(fig1)
+
+    with col_insight:
+        st.markdown("#### 🔍 Insights")
+        st.metric("Average Recency", f"{rfm['Recency'].mean():.0f} days")
+        st.metric("Most Recent Purchase", f"{rfm['Recency'].min()} days ago")
+        st.metric("Least Recent Purchase", f"{rfm['Recency'].max()} days ago")
+        st.info("""
+        📌 **Key Takeaways:**
+        - Distribution is **right-skewed** — many customers purchased recently, many others lapsed.
+        - Customers with **0–30 days** recency are active — ideal for upselling.
+        - Customers with **200+ days** recency need urgent win-back campaigns.
+        - The spike at lower end indicates a healthy base of recent buyers.
+        """)
 
     st.markdown("---")
 
     # ── Chart 2: Frequency Distribution ───────────────────────
     st.subheader("2️⃣ Frequency Distribution")
     st.markdown("How many times did customers purchase?")
-    fig2, ax2 = plt.subplots(figsize=(10, 4))
-    ax2.hist(rfm['Frequency'], bins=50, color='seagreen', edgecolor='white')
-    ax2.set_xlabel("Frequency (number of purchases)")
-    ax2.set_ylabel("Number of Customers")
-    ax2.set_title("Frequency Distribution")
-    st.pyplot(fig2)
-    plt.close(fig2)
+
+    col_chart, col_insight = st.columns([3, 2])
+
+    with col_chart:
+        fig2, ax2 = plt.subplots(figsize=(8, 4))
+        ax2.hist(rfm['Frequency'], bins=50, color='seagreen', edgecolor='white')
+        ax2.set_xlabel("Frequency (number of purchases)")
+        ax2.set_ylabel("Number of Customers")
+        ax2.set_title("Frequency Distribution")
+        st.pyplot(fig2)
+        plt.close(fig2)
+
+    with col_insight:
+        st.markdown("#### 🔍 Insights")
+        low_freq = (rfm['Frequency'] <= 2).sum()
+        st.metric("Average Frequency", f"{rfm['Frequency'].mean():.1f} purchases")
+        st.metric("Maximum Purchases", f"{rfm['Frequency'].max()} purchases")
+        st.metric("One-Time / Rare Buyers", f"{low_freq} customers")
+        st.info("""
+        📌 **Key Takeaways:**
+        - Majority of customers have made only **1 to 3 purchases**.
+        - A tiny group purchases **80+ times** — these are High-Value customers.
+        - One-time buyers are a big opportunity — converting even a fraction grows revenue.
+        - Loyalty programs and follow-up emails can effectively increase frequency.
+        """)
 
     st.markdown("---")
 
     # ── Chart 3: Monetary Distribution ────────────────────────
     st.subheader("3️⃣ Monetary Distribution")
     st.markdown("How much did customers spend in total?")
-    fig3, ax3 = plt.subplots(figsize=(10, 4))
-    ax3.hist(rfm['Monetary'], bins=50, color='coral', edgecolor='white')
-    ax3.set_xlabel("Monetary (total spend £)")
-    ax3.set_ylabel("Number of Customers")
-    ax3.set_title("Monetary Distribution")
-    st.pyplot(fig3)
-    plt.close(fig3)
+
+    col_chart, col_insight = st.columns([3, 2])
+
+    with col_chart:
+        fig3, ax3 = plt.subplots(figsize=(8, 4))
+        ax3.hist(rfm['Monetary'], bins=50, color='coral', edgecolor='white')
+        ax3.set_xlabel("Monetary (total spend £)")
+        ax3.set_ylabel("Number of Customers")
+        ax3.set_title("Monetary Distribution")
+        st.pyplot(fig3)
+        plt.close(fig3)
+
+    with col_insight:
+        st.markdown("#### 🔍 Insights")
+        low_spenders = (rfm['Monetary'] < 500).sum()
+        st.metric("Average Spend", f"£{rfm['Monetary'].mean():,.0f}")
+        st.metric("Highest Spend", f"£{rfm['Monetary'].max():,.0f}")
+        st.metric("Customers Spending < £500", f"{low_spenders}")
+        st.info("""
+        📌 **Key Takeaways:**
+        - Distribution is **extremely right-skewed** — classic Pareto (80/20) pattern.
+        - ~20% of customers generate ~80% of total revenue.
+        - Majority spend **£500 or less** — bundle deals can lift average order value.
+        - Highest spenders should be treated as **VIPs** with exclusive offers.
+        """)
 
     st.markdown("---")
 
     # ── Chart 4: Customer Segment Distribution ─────────────────
     st.subheader("4️⃣ Customer Segment Distribution")
     st.markdown("How many customers fall in each segment?")
-    segment_counts = rfm['Segment'].value_counts()
-    colors = ['#2ecc71', '#f1c40f', '#3498db', '#e74c3c']
-    fig4, ax4 = plt.subplots(figsize=(8, 5))
-    bars = ax4.bar(segment_counts.index, segment_counts.values,
-                   color=colors[:len(segment_counts)], edgecolor='white')
-    ax4.set_xlabel("Segment")
-    ax4.set_ylabel("Number of Customers")
-    ax4.set_title("Customer Segment Distribution")
-    for bar, val in zip(bars, segment_counts.values):
-        ax4.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 5,
-                 str(val), ha='center', va='bottom', fontweight='bold')
-    st.pyplot(fig4)
-    plt.close(fig4)
+
+    col_chart, col_insight = st.columns([3, 2])
+
+    with col_chart:
+        segment_counts = rfm['Segment'].value_counts()
+        colors = ['#2ecc71', '#f1c40f', '#3498db', '#e74c3c']
+        fig4, ax4 = plt.subplots(figsize=(8, 5))
+        bars = ax4.bar(segment_counts.index, segment_counts.values,
+                       color=colors[:len(segment_counts)], edgecolor='white')
+        ax4.set_xlabel("Segment")
+        ax4.set_ylabel("Number of Customers")
+        ax4.set_title("Customer Segment Distribution")
+        for bar, val in zip(bars, segment_counts.values):
+            ax4.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 5,
+                     str(val), ha='center', va='bottom', fontweight='bold')
+        st.pyplot(fig4)
+        plt.close(fig4)
+
+    with col_insight:
+        st.markdown("#### 🔍 Insights")
+        total_customers = len(rfm)
+        for seg, count in segment_counts.items():
+            pct = count / total_customers * 100
+            st.metric(seg, f"{count} customers", f"{pct:.1f}% of total")
+        st.info("""
+        📌 **Key Takeaways:**
+        - **At-Risk** is typically the largest segment — retention campaigns are top priority.
+        - **Regular customers** are the best candidates for upselling to High-Value.
+        - **High-Value customers** are few but critical — losing one hurts revenue significantly.
+        - **Occasional customers** need targeted promotions to build purchase habit.
+        """)
 
     st.markdown("---")
 
     # ── Summary Table ──────────────────────────────────────────
     st.subheader("📋 RFM Summary by Segment")
-    summary = rfm.groupby('Segment')[['Recency','Frequency','Monetary']].mean().round(2)
+    st.markdown("Average RFM values for each customer segment:")
+    summary = rfm.groupby('Segment')[['Recency', 'Frequency', 'Monetary']].mean().round(2)
     st.dataframe(summary, use_container_width=True)
 
+    st.markdown("---")
+    st.success("""
+    💡 **Overall Business Recommendation:**
+    Focus retention efforts on At-Risk customers, reward High-Value customers with VIP programs,
+    upsell to Regular customers with bundles, and re-engage Occasional customers with targeted
+    promotions. Together these four strategies cover the full customer lifecycle.
+    """)
+    
 # ══════════════════════════════════════════════════════════════
 # PAGE 3 — CUSTOMER SEGMENTATION
 # ══════════════════════════════════════════════════════════════
