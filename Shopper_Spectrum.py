@@ -12,10 +12,10 @@ os.makedirs(eda_folder, exist_ok=True)
 # Step 1 — Dataset Understanding
 
 df = pd.read_csv('online_retail.csv')
-print(df.shape)          # rows & columns
-print(df.dtypes)         # data types
-print(df.isnull().sum()) # missing values
-print(df.duplicated().sum()) # duplicates
+print(df.shape)          
+print(df.dtypes)         
+print(df.isnull().sum()) 
+print(df.duplicated().sum()) 
 print(df.describe())
 
 # Step 2 — Data Preprocessing
@@ -125,7 +125,6 @@ rfm['Cluster'] = km.fit_predict(rfm_scaled)
 
 # Interpret cluster means to assign labels
 print(rfm.groupby('Cluster')[['Recency','Frequency','Monetary']].mean())
-# Map clusters to labels based on the means — e.g., low Recency + high F + high M → High-Value.
 # Assign cluster labels
 cluster_label_map = {0: 'Regular', 1: 'At-Risk', 2: 'High-Value', 3: 'Occasional'}
 rfm['Segment'] = rfm['Cluster'].map(cluster_label_map)
@@ -184,5 +183,3 @@ def recommend(product_name, n=5):
 print(recommend('GREEN VINTAGE SPOT BEAKER'))
 # Save the similarity matrix:
 item_sim_df.to_pickle('item_similarity.pkl')
-
-
